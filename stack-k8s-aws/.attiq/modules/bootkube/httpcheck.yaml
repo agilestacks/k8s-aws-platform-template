@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: httpcheck
+  labels:
+    k8s-app: httpcheck
+spec:
+  selector:
+    matchLabels:
+      name: httpcheck
+  template:
+    metadata:
+      labels:
+        name: httpcheck
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+      hostNetwork: true
+      terminationGracePeriodSeconds: 1
+      containers:
+      - name: httpcheck
+        image: agilestacks/httpcheck:v0.0.2
+        env:
+        - name: HTTPCHECK_WAIT
+          value: "300"

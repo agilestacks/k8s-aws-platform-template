@@ -1,0 +1,288 @@
+Description:
+  This template deploys a VPC, with a pair of public and private subnets spread
+  across two Availability Zones. It deploys an Internet Gateway, with a default
+  route on the public subnets. Number of subnets/routes must much number of AZ
+  in region of deployment.
+
+Parameters:
+  StackName:
+    Description: An stack name that will be prefixed to resource names
+    Type: String
+
+  StackDomain:
+    Description: An stack domain name that will be prefixed to resource names
+    Type: String
+
+  RegionAZ1:
+    Description: First AZ in region
+    Type: String
+    Default: "us-east-2a"
+
+  RegionAZ2:
+    Description: Second AZ in region
+    Type: String
+    Default: "us-east-2b"
+
+  RegionAZ3:
+    Description: Third AZ in region
+    Type: String
+    Default: "us-east-2c"
+
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.0.0.0/16
+
+  MasterSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+    Type: String
+    Default: 10.0.0.0/21
+
+  MasterSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+    Type: String
+    Default: 10.0.8.0/21
+
+  MasterSubnet3CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnet in the third Availability Zone
+    Type: String
+    Default: 10.0.16.0/21
+
+  WorkerSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
+    Type: String
+    Default: 10.0.24.0/21
+
+  WorkerSubnet2CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
+    Type: String
+    Default: 10.0.32.0/21
+
+  WorkerSubnet3CIDR:
+    Description: Please enter the IP range (CIDR notation) for the private subnet in the third Availability Zone
+    Type: String
+    Default: 10.0.40.0/21
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${StackName}.${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub igw-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  MasterSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref RegionAZ1
+      CidrBlock: !Ref MasterSubnet1CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub master-${RegionAZ1}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  MasterSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref RegionAZ2
+      CidrBlock: !Ref MasterSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub master-${RegionAZ2}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  MasterSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref RegionAZ3
+      CidrBlock: !Ref MasterSubnet3CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub master-${RegionAZ3}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  WorkerSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref RegionAZ1
+      CidrBlock: !Ref WorkerSubnet1CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub worker-${RegionAZ1}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  WorkerSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref RegionAZ2
+      CidrBlock: !Ref WorkerSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub worker-${RegionAZ2}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  WorkerSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Ref RegionAZ3
+      CidrBlock: !Ref WorkerSubnet3CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub worker-${RegionAZ3}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub public-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  MasterSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref MasterSubnet1
+
+  MasterSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref MasterSubnet2
+
+  MasterSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref MasterSubnet3
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub private-${RegionAZ1}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  WorkerSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref WorkerSubnet1
+
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub private-${RegionAZ2}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  WorkerSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref WorkerSubnet2
+
+  PrivateRouteTable3:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub private-${RegionAZ3}-${StackName}-${StackDomain}
+        - Key: !Sub kubernetes.io/cluster/${StackName}-${StackDomain}
+          Value: shared
+
+  DefaultPrivateRoute3:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable3
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  WorkerSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable3
+      SubnetId: !Ref WorkerSubnet3
+
+Outputs:
+  VPCId:
+    Description: A reference to the created VPC
+    Value: !Ref VPC
+
+  VPCCidr:
+    Description: VPC CIDR CidrBlock
+    Value: !GetAtt VPC.CidrBlock
+
+  MasterSubnets:
+    Description: A list of the public subnets
+    Value: !Join [ ",", [ !Ref MasterSubnet1, !Ref MasterSubnet2, !Ref MasterSubnet3 ]]
+
+  WorkerSubnets:
+    Description: A list of the private subnets
+    Value: !Join [ ",", [ !Ref WorkerSubnet1, !Ref WorkerSubnet2, !Ref WorkerSubnet3 ]]
+
+

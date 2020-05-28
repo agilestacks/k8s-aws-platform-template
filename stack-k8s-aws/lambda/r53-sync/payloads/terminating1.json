@@ -1,0 +1,24 @@
+{
+"Records": [
+{
+"EventSource": "aws:sns",
+"EventSubscriptionArn": "arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net:43dc644f-5e16-46da-a011-e5a003d54cdd",
+"EventVersion": "1.0",
+"Sns": {
+"Message": "{\"LifecycleHookName\":\"hook-small-k8s-akranga-net-terminating\",\"AccountId\":\"973998981304\",\"RequestId\":\"e739e527-41a4-4f4d-8b4a-b252c8614fe3\",\"LifecycleTransition\":\"autoscaling:EC2_INSTANCE_TERMINATING\",\"AutoScalingGroupName\":\"master-small-k8s-akranga-net\",\"Service\":\"AWS Auto Scaling\",\"Time\":\"2016-11-07T19:25:58.934Z\",\"EC2InstanceId\":\"i-030ba3c4476efed13\",\"NotificationMetadata\":\"{\\n \\\"r53_hosted_zone_id\\\": \\\"ZPLMX7BF31FMI\\\",\\n \\\"r53_hosted_zone_domain\\\": \\\"small.k8s.akranga.net\\\",\\n \\\"etcd_srv_dicsovery_client\\\": \\\"_etcd-client._tcp.small.k8s.akranga.net\\\",\\n \\\"etcd_srv_dicsovery_server\\\": \\\"_etcd-server._tcp.small.k8s.akranga.net\\\"\\n}\\n\",\"LifecycleActionToken\":\"36ec1b43-02ec-45f4-bd36-f452bf23ce15\"}",
+"MessageAttributes":
+{}
+,
+"MessageId": "04a87953-0ae4-5a41-9351-29c9dd620d67",
+"Signature": "fwhJk3jeiRK5rbfiJ5USgUBKG/GypiIfzdDrDUnoVcilNG+kUH6I7hZXecgTHV0ZlgHfyDAPGgdmXY9C4twsgQypXnIW67i62gYpYEAfomsB+kfIowTxlRPu6ty77JndBm6UYPKZtlvDZb3j1BOTKygG53lCsGwkDUfSYf9k5iERwwH+Dzah8jEiTKx9P30QAtLskic8l9dTh953k+kwq0S6do/RirKDOBk+KuW/AkWIuaJQOYmefhFo5UTJNGAre36cgEjRthdc4qW+8v0DTOVoW+ia03kjp5Igb7TfNT976YcvpYnif0JXubp5rnjvk5S5+1v9hsqS5lZkj1p3/g==",
+"SignatureVersion": "1",
+"SigningCertUrl": "https://sns.eu-central-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+"Subject": "Auto Scaling: Lifecycle action 'TERMINATING' for instance i-030ba3c4476efed13 in progress.",
+"Timestamp": "2016-11-07T19:25:58.954Z",
+"TopicArn": "arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net",
+"Type": "Notification",
+"UnsubscribeUrl": "https://sns.eu-central-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net:43dc644f-5e16-46da-a011-e5a003d54cdd"
+}
+}
+]
+}

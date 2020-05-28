@@ -1,0 +1,176 @@
+---
+version: 1
+kind: component
+meta:
+  name: stack-k8s-aws
+  brief: Kubernetes on AWS
+  version: 1.16.7
+  source:
+    dir: ../stack-k8s-aws/
+
+requires:
+  - aws
+provides:
+  - kubernetes
+
+lifecycle:
+  verbs:
+    - deploy
+    - undeploy
+    - import
+    - spot-prices
+    - check-spot
+    - clean-state
+    - clean
+
+parameters:
+  - name: dns.name
+    env: TF_VAR_name
+  - name: dns.baseDomain
+    env: TF_VAR_base_domain
+  - name: cloud.availabilityZone
+    env: TF_VAR_aws_az
+  - name: terraform.bucket.name
+    env: STATE_BUCKET
+  - name: terraform.bucket.region
+    env: STATE_REGION
+  - name: cloud.sshKey
+    env: TF_VAR_keypair
+  - name: component.kubernetes.version
+    env: TF_VAR_kubernetes_version
+    value: v1.16.7
+  - name: component.kubernetes
+    kind: user
+    parameters:
+      - name: bastionHost
+        env: TF_VAR_bastion_enabled
+        default: false
+      - name: natAddressPool
+        brief: >
+          White space separated list of NAT EIP pool.
+          Free address will be associated with cluster
+        env: NAT_ADDR_POOL
+        default: " "
+        empty: allow
+      - name: natEipAllocations
+        brief: A list of NAT Gateway's Elastic IP Allocations - for cluster outgoing connections
+        env: TF_VAR_asi_aws_nat_gw_eipallocs
+        default: "[]"
+      - name: existingVpc
+        env: TF_VAR_asi_aws_external_vpc_id
+        empty: allow
+      - name: vpcCidrBlock
+        env: TF_VAR_asi_aws_vpc_cidr_block
+        empty: allow
+        default: "10.0.0.0/16"
+      - name: existingMasterSubnetIds
+        env: TF_VAR_asi_aws_external_master_subnet_ids
+        empty: allow
+        default: "[]"
+      - name: existingWorkerSubnetIds
+        env: TF_VAR_asi_aws_external_worker_subnet_ids
+        empty: allow
+        default: "[]"
+      - name: multiAz
+        env: TF_VAR_asi_aws_multi_az
+        default: false
+      - name: volumePluginDir
+        env: TF_VAR_volume_plugin_dir
+        value: /var/lib/kubelet/volumeplugins
+      - name: k8sApiFqdn
+        env: TF_VAR_k8s_api_fqdn
+        value: api.${dns.name}.${dns.baseDomain}
+  - name: component.kubernetes.cloudProvider
+    env: TF_VAR_cloud_provider
+    value: aws
+  - name: component.kubernetes.readyCondition
+    parameters:
+      - name: minMasters
+        env: MIN_NUMB_MASTERS
+        value: 1
+      - name: minNodes
+        env: MIN_NUMB_NODES
+        value: 1
+  - name: component.kubernetes.master
+    kind: user
+    parameters:
+      - name: count
+        env: TF_VAR_master_count
+        default: 1
+      - name: size
+        env: TF_VAR_master_instance_type
+        default: t3.medium
+      - name: spotPrice
+        env: TF_VAR_master_spot_price
+        empty: allow
+      - name: enableR53SyncLifecycleHook
+        brief: <
+          this is a technical parameter to instruct terraform if r53sync should be added or not
+          works in conjunction with "component.kubernetes.master"
+        value: '#{component.kubernetes.master == "true" ? "false" : "true"}'
+        env: TF_VAR_asi_r53sync_lifecycle_hook_enabled
+  - name: component.kubernetes.master.iamRole
+    env: TF_VAR_asi_aws_master_iam_role_name
+    empty: allow
+  - name: component.kubernetes.worker.iamRole
+    env: TF_VAR_asi_aws_worker_iam_role_name
+    empty: allow
+  - name: component.kubernetes.worker.defaultIamRoleEnabled
+    env: TF_VAR_asi_aws_default_iam_role_enabled
+    value: true
+  - name: component.kubernetes.etcd
+    kind: user
+    parameters:
+      - name: count
+        env: TF_VAR_etcd_count
+        default: 3
+      - name: size
+        env: TF_VAR_etcd_instance_type
+        default: t3.small
+      - name: spotPrice
+        env: TF_VAR_etcd_spot_price
+        empty: allow
+
+outputs:
+  - name: dns.domain
+    brief: Cluster domain
+    fromTfVar: base_domain
+  - name: cloud.vpc.id
+    fromTfVar: vpc
+  - name: cloud.vpc.cidr
+    fromTfVar: vpc_cidr_block
+  - name: cloud.vpc.master.subnet.id
+    fromTfVar: master_subnet_id
+  - name: cloud.vpc.master.sg.id
+    fromTfVar: master_sg_id
+  - name: cloud.vpc.worker.subnet.id
+    fromTfVar: worker_subnet_id
+  - name: cloud.vpc.worker.subnet.ids
+    fromTfVar: worker_subnet_ids
+  - name: cloud.vpc.worker.sg.id
+    fromTfVar: worker_sg_id
+  - name: cloud.role.master
+    fromTfVar: master_role_name
+  - name: cloud.role.worker
+    fromTfVar: worker_role_name
+  - name: cloud.iam.worker.instanceProfile
+    fromTfVar: worker_iam_instance_profile_name
+  - name: cloud.ec2.master.ignitionProfileS3
+    fromTfVar: master_ignition_s3
+  - name: cloud.ec2.worker.ignitionProfileS3
+    fromTfVar: worker_ignition_s3
+  - name: kubernetes.flavor
+    value: k8s-aws
+  - name: kubernetes.api.host
+    fromTfVar: api_server_host
+  - name: kubernetes.api.port
+    fromTfVar: api_server_port
+  - name: kubernetes.api.endpoint
+    value: ${kubernetes.api.host}:${kubernetes.api.port}
+  - name: kubernetes.api.caCert
+    fromTfVar: api_ca_crt
+  - name: kubernetes.api.clientCert
+    fromTfVar: api_client_crt
+  - name: kubernetes.api.clientKey
+    fromTfVar: api_client_key
+  - name: component.kubernetes.volumePluginDir

@@ -1,0 +1,58 @@
+[Unit]
+Description=Kubernetes Kubelet
+Wants=rpc-statd.service
+
+[Service]
+ExecStartPre=/bin/mkdir --parents /etc/kubernetes/manifests
+ExecStartPre=/bin/mkdir --parents /etc/kubernetes/checkpoint-secrets
+ExecStartPre=/bin/mkdir --parents /etc/kubernetes/inactive-manifests
+ExecStartPre=/bin/mkdir --parents /etc/kubernetes/cni/net.d
+ExecStartPre=/bin/mkdir --parents /run/kubelet
+ExecStartPre=/bin/mkdir --parents /var/lib/cni
+ExecStartPre=/bin/mkdir --parents /opt/cni/bin
+ExecStartPre=/bin/mkdir --parents /var/lib/kubelet/pki
+ExecStartPre=/bin/mkdir --parents ${volume_plugin_dir}
+ExecStartPre=/bin/mkdir --parents /opt/bin
+
+ExecStartPre=/bin/cp -f /opt/asi/auth/kubeconfig-kubelet /etc/kubernetes/kubeconfig
+ExecStartPre=/usr/bin/bash -c "grep 'certificate-authority-data' /etc/kubernetes/kubeconfig | awk '{print $2}' | base64 -d > /etc/kubernetes/ca.crt"
+
+ExecStart=/usr/bin/docker \
+  run \
+    --rm \
+    --net host \
+    --pid host \
+    --privileged \
+    --env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin \
+    --volume /dev:/dev:rw \
+    --volume /sys:/sys:ro \
+    --volume /opt/bin:/opt/bin:ro \
+    --volume /var/run:/var/run:rw \
+    --volume /var/lib/:/var/lib:rw \
+    --volume /var/lib/cni/:/var/lib/cni:rw \
+    --volume /opt/cni/bin/:/opt/cni/bin:rw \
+    --volume /var/lib/docker/:/var/lib/docker:rw \
+    --volume /var/lib/kubelet/:/var/lib/kubelet:shared \
+    --volume /var/log:/var/log:shared \
+    --volume /etc/kubernetes:/etc/kubernetes:ro \
+    --entrypoint /hyperkube \
+  "${kubelet_image_url}:${kubelet_image_tag}" \
+    kubelet \
+      --cert-dir=/var/lib/kubelet/pki \
+      --cloud-provider=${cloud_provider} \
+      --cni-bin-dir=/opt/cni/bin \
+      --cni-conf-dir=/etc/kubernetes/cni/net.d \
+      --config=/var/lib/kubelet/config.yaml \
+      --exit-on-lock-contention \
+      --kubeconfig=/etc/kubernetes/kubeconfig \
+      --lock-file=/var/run/lock/kubelet.lock \
+      --network-plugin=cni \
+      --node-labels=${node_label} \
+      ${node_taints_param} \
+      --volume-plugin-dir=${volume_plugin_dir}
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

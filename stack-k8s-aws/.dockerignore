@@ -1,0 +1,9 @@
+.terraform/*
+.DS_Store
+.dockerignore
+.editorconfig
+.envrc
+.git
+.gitignore
+Dockerfile
+README.md

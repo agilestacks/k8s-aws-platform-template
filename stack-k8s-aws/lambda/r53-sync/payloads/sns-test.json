@@ -1,0 +1,20 @@
+{
+  "Records": [{
+    "EventSource": "aws:sns",
+    "EventSubscriptionArn": "arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net:db7b2487-f5a9-47df-a3a5-8ce167cce42e",
+    "EventVersion": "1.0",
+    "Sns": {
+      "Message": "{\"AccountId\":\"973998981304\",\"RequestId\":\"a1053fac-a5dd-11e6-9833-cde572b90615\",\"AutoScalingGroupARN\":\"arn:aws:autoscaling:eu-central-1:973998981304:autoScalingGroup:418d1273-8258-4871-9111-d1afdbd96c6a:autoScalingGroupName/master-small-k8s-akranga-net\",\"AutoScalingGroupName\":\"master-small-k8s-akranga-net\",\"Service\":\"AWS Auto Scaling\",\"Event\":\"autoscaling:TEST_NOTIFICATION\",\"Time\":\"2016-11-08T18:03:18.936Z\"}",
+      "MessageAttributes": {},
+      "MessageId": "8bb07740-5958-56d9-9577-27dc4cff96fd",
+      "Signature": "KzF+ww5m7KH0fKNN/s0fy1CKrggyjLiuzfoUWuFlu6euKQUwDCQTZeiV4RVeZ4rHZxY5vtDNUocY8H2Iq7fNjV+2hAAnHleNvXznNx1qWaLFUJ5quCg22a/TDwt4jxSSA8GtAfroTgA7GVk134v1nTGPjGE3M5hXRupsSVXmsgIR06p6jjL6D2Uf87guqtQTTqVxmgQM/p6LNgk3zXvMaKN4COETJnZlCK/hPbHOAS2lY654oodELWz1U2JrAIcHnzSWJDK3FsTY/ZIIeOHKRJOmkfrsYOW859hhc2iViovvnyfN3vR27s9GJKgKkVlntkx++xUMCawpzPLyTXuqLQ==",
+      "SignatureVersion": "1",
+      "SigningCertUrl": "https://sns.eu-central-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+      "Subject": "Auto Scaling: test notification for group \"master-small-k8s-akranga-net\"",
+      "Timestamp": "2016-11-08T18:03:19.206Z",
+      "TopicArn": "arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net",
+      "Type": "Notification",
+      "UnsubscribeUrl": "https://sns.eu-central-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net:db7b2487-f5a9-47df-a3a5-8ce167cce42e"
+    }
+  }]
+}

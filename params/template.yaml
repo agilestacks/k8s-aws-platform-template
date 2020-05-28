@@ -1,0 +1,85 @@
+parameters:
+  - name: component.ingress
+    parameters:
+      - name: dashboard
+        value: 'true'
+      - name: ssoUrlPrefix
+        value: apps
+      - name: urlPrefix
+        value: app
+  - name: component.kubernetes
+    parameters:
+      - name: natEipAllocations
+        value: '[]'
+      - name: bastionHost
+        value: 'false'
+      - name: etcd.count
+        value: '1'
+      - name: etcd.size
+        value: t3.small
+      - name: etcd.spotPrice
+        value: '0.0884'
+      - name: existingMasterSubnetIds
+        value: '[]'
+      - name: existingVpc
+        value: ''
+      - name: existingWorkerSubnetIds
+        value: '[]'
+      - name: master.count
+        value: '1'
+      - name: master.elb
+        value: 'false'
+      - name: master.size
+        value: m5.large
+      - name: master.spotPrice
+        value: '0.5760'
+      - name: mixed.spotAllocationStrategy
+        value: capacity-optimized
+      - name: multiAz
+        value: 'false'
+      - name: vpcCidrBlock
+        value: 10.0.0.0/16
+      - name: worker.autoscaling.enabled
+        value: 'false'
+      - name: worker.count
+        value: '1'
+      - name: worker.maxCount
+        value: '${component.kubernetes.worker.count}'
+      - name: worker.mixed.onDemandBaseCapacity
+        value: '0'
+      - name: worker.mixed.onDemandPercentageAboveBaseCapacity
+        value: '0'
+      - name: worker.mixed.spotAllocationStrategy
+        value: capacity-optimized
+      - name: worker.size
+        value: m5.large
+      - name: worker.volume.size
+        value: '30'
+  - name: component.kubernetes-dashboard
+    parameters:
+      - name: rbac.kind
+        value: read-only
+  - name: component.namespace
+    component: automation-tasks-namespace
+    parameters:
+      - name: name
+        value: automation-tasks
+  - name: component.worker-pool
+    parameters:
+      - name: autoscaling.enabled
+        value: '${component.kubernetes.worker.autoscaling.enabled}'
+      - name: count
+        value: '${component.kubernetes.worker.count}'
+      - name: instance.size
+        value: '${component.kubernetes.worker.size}'
+      - name: mixed.spotAllocationStrategy
+        value: '${component.kubernetes.worker.mixed.spotAllocationStrategy}'
+      - name: mixed.onDemandBaseCapacity
+        value: '${component.kubernetes.worker.mixed.onDemandBaseCapacity}'
+      - name: mixed.onDemandPercentageAboveBaseCapacity
+        value: >-
+          ${component.kubernetes.worker.mixed.onDemandPercentageAboveBaseCapacity}
+      - name: shortName
+        value: initial
+      - name: volume.size
+        value: '${component.kubernetes.worker.volume.size}'

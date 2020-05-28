@@ -1,0 +1,20 @@
+{
+  "Records": [{
+    "EventSource": "aws:sns",
+    "EventSubscriptionArn": "arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net:4dbf9a43-ae2d-4ae8-9bab-dc2917cb602d",
+    "EventVersion": "1.0",
+    "Sns": {
+      "Message": "{\"LifecycleHookName\":\"hook-small-k8s-akranga-net-launhing\",\"AccountId\":\"973998981304\",\"RequestId\":\"49521e6b-39fa-4790-b680-5385bbcc143e\",\"LifecycleTransition\":\"autoscaling:EC2_INSTANCE_LAUNCHING\",\"AutoScalingGroupName\":\"master-small-k8s-akranga-net\",\"Service\":\"AWS Auto Scaling\",\"Time\":\"2016-11-21T13:22:20.761Z\",\"EC2InstanceId\":\"i-06a06a59ac1f470d9\",\"NotificationMetadata\":\"{\\n  \\\"HostedZoneId\\\":        \\\"{{HostedZoneId}}\\\",\\n  \\\"Changes\\\": [\\n    {\\n      \\\"Action\\\": \\\"UPSERT\\\",\\n      \\\"Name\\\": \\\"_etcd-client._tcp.small.k8s.akranga.net\\\",\\n      \\\"Type\\\": \\\"SRV\\\",\\n      \\\"TTL\\\": \\\"0\\\",\\n      \\\"Template\\\": \\\"0 0 2379 {{PrivateDnsName}}\\\"\\n    },\\n    {\\n      \\\"Action\\\": \\\"UPSERT\\\",\\n      \\\"Name\\\": \\\"_etcd-server._tcp.small.k8s.akranga.net\\\",\\n      \\\"Type\\\": \\\"SRV\\\",\\n      \\\"TTL\\\": \\\"0\\\",\\n      \\\"Template\\\": \\\"0 0 2380 {{PrivateDnsName}}\\\"\\n    },\\n    {\\n      \\\"Action\\\": \\\"UPSERT\\\",\\n      \\\"Name\\\": \\\"master.small.k8s.akranga.net\\\",\\n      \\\"Type\\\": \\\"A\\\",\\n      \\\"TTL\\\": \\\"30\\\",\\n      \\\"Template\\\": \\\"{{PrivateIpAddress}}\\\"\\n    }\\n  ]\\n}\\n\",\"LifecycleActionToken\":\"c86956f0-8a87-4780-b338-22525225ec09\"}",
+      "MessageAttributes": {},
+      "MessageId": "b7b6b859-5bf0-5dc7-8d2d-e8f5acbc2d0e",
+      "Signature": "VmWQq0z2ggscKe0/m/xJW/Py0LrwgX/6s6UfSvpWz9kZC9U95K/2QWPqZEmgegsHHIICj/Qhq8SOc/JkrYBGMe/pDEfIgWHPkfa9Cy1AgHMy2lLeXtf5QotwkkMROMHkQeD8tvzLQsb2SDQr30PlLZTMDokQj9lQeRdL3t+9HqvPP/pAD3hjZJJgzicJ2CKe7UYkP6dRJwB6KwHJ2S+SK0RbEIQTZvXufyymP8RpM07idrbVzAyaITk0bEV9RGwgp66syLiW6g11xxOJ3lCVH5bbiRIeXqDK7isYNYMd494F+sUmutk0ozoQRLREbmXYHGxg3Bjzpzp9Kyw+RmsOnQ==",
+      "SignatureVersion": "1",
+      "SigningCertUrl": "https://sns.eu-central-1.amazonaws.com/SimpleNotificationService-b95095beb82e8f6a046b3aafc7f4149a.pem",
+      "Subject": "Auto Scaling:  Lifecycle action 'LAUNCHING' for instance i-06a06a59ac1f470d9 in progress.",
+      "Timestamp": "2016-11-21T13:22:20.782Z",
+      "TopicArn": "arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net",
+      "Type": "Notification",
+      "UnsubscribeUrl": "https://sns.eu-central-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-central-1:973998981304:sns-small-k8s-akranga-net:4dbf9a43-ae2d-4ae8-9bab-dc2917cb602d"
+    }
+  }]
+}

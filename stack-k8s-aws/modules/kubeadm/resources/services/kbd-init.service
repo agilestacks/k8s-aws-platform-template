@@ -1,0 +1,48 @@
+[Unit]
+Description=Kubeadm master bootstarp
+ConditionPathExists=!/opt/kubeadm/kbd-init.done
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/opt/kubeadm
+Environment=PATH=/opt/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/bin
+User=root
+Group=root
+
+ExecStartPre=/usr/bin/timeout 600s /usr/bin/bash -c ' \
+echo "Waiting for etcd dns to resolve"; \
+until [ `dig +short "${ETCD_URL}" | xargs shuf -n1 -e` != "127.0.0.1" ]; do \
+    echo "Still waiting..."; sleep 5; \
+done; echo "Done!" \
+'
+ExecStartPre=/usr/bin/timeout 600s /bin/bash -c ' \
+echo "Waiting etcd to repond: OK 200" ; \
+while [ `curl -sLo /dev/null -w '%{http_code}' \
+        --cacert /opt/asi/tls/etcd-client-ca.crt \
+        --cert /opt/asi/tls/etcd-client.crt \
+        --key /opt/asi/tls/etcd-client.key \
+        "https://${ETCD_URL}:2379/health"` -ne "200" ]; do \
+    echo "Still waiting..."; sleep 5; \
+done; echo "Done!" \
+'
+ExecStartPre=/usr/bin/timeout 600s /bin/bash -c ' \
+echo "Waiting etcd to repond: healthy" ; \
+while [ `curl -sLo \
+        --cacert /opt/asi/tls/etcd-client-ca.crt \
+        --cert /opt/asi/tls/etcd-client.crt \
+        --key /opt/asi/tls/etcd-client.key \
+        "https://${ETCD_URL}:2379/health" | jq -r '.health'` != "true" ]; do \
+    echo "Still waiting..."; sleep 5; \
+done; echo "Done!" \
+'
+ExecStartPre=/bin/bash /opt/kubeadm/kubeadm-assets.sh
+ExecStart=/opt/bin/kubeadm init --config=/opt/kubeadm/kubeadm-init.yaml
+ExecStartPost=/bin/touch /opt/kubeadm/kbd-init.done
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=bootkube.service

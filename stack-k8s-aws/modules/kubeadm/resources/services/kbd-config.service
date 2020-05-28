@@ -1,0 +1,26 @@
+[Unit]
+Description=Kubeadm config
+ConditionPathExists=!/opt/kubeadm/kbd-config.done
+Requires=kbd-init.service
+After=kbd-init.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/opt/kubeadm
+
+User=root
+Group=root
+
+ExecStartPre=/usr/bin/timeout 600s /usr/bin/bash -c ' \
+echo "Waiting for API server dns to resolve"; \
+until [ `dig +short "${API_URL}" | xargs shuf -n1 -e` != "127.0.0.1" ]; do \
+    echo "Still waiting..."; sleep 5; \
+done; echo "Done!" \
+'
+ExecStart=/usr/bin/bash /opt/kubeadm/kbd-config.sh
+ExecStartPost=/bin/touch /opt/kubeadm/kbd-config.done
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=bootkube.service

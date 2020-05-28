@@ -1,0 +1,19 @@
+[Unit]
+Description=Tag etcd EC2 instances
+ConditionPathExists=!/opt/etcd_tags.done
+Requires=coreos-metadata.service
+After=coreos-metadata.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/opt
+
+User=root
+Group=root
+
+ExecStart=/usr/bin/bash /opt/etcd-tags.sh
+ExecStartPost=/bin/touch /opt/etcd_tags.done
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,34 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    cloud-provider: ${CLOUD_PROVIDER}
+    enable-admission-plugins: "NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultTolerationSeconds,DefaultStorageClass,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota"
+clusterName: ${CLUSTER_NAME}
+controlPlaneEndpoint: ${API_URL}
+etcd:
+    external:
+        endpoints: ${ETCD_URL}
+        caFile: /opt/asi/tls/etcd-client-ca.crt
+        certFile: /opt/asi/tls/etcd-client.crt
+        keyFile: /opt/asi/tls/etcd-client.key
+controllerManager:
+  extraArgs:
+    cloud-provider: ${CLOUD_PROVIDER}
+    configure-cloud-routes: "false"
+kubernetesVersion: stable
+networking:
+  dnsDomain: cluster.local
+  podSubnet: 10.2.0.0/16
+  serviceSubnet: 10.3.0.0/16
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+bootstrapTokens:
+- token: ${KUBEADM_TOKEN}
+  description: "default kubeadm bootstrap token"
+  ttl: "0"
+nodeRegistration:
+  kubeletExtraArgs:
+    cloud-provider: ${CLOUD_PROVIDER}
