@@ -1,0 +1,49 @@
+#!/bin/bash
+
+echo "  ____                        _           _      _       ";
+echo " / ___| _   _ _ __   ___ _ __| |__  _   _| |__  (_) ___  ";
+echo " \___ \| | | | '_ \ / _ \ '__| '_ \| | | | '_ \ | |/ _ \ ";
+echo "  ___) | |_| | |_) |  __/ |  | | | | |_| | |_) || | (_) |";
+echo " |____/ \__,_| .__/ \___|_|  |_| |_|\__,_|_.__(_)_|\___/ ";
+echo "             |_|                                         ";
+
+BUBBLES="https://api.app.vou7.dev.superhub.io/dns"
+ASI_DOMAIN="dev.superhub.io"
+DEFAULT_CLUSTER_NAME="myk8s"
+
+if [ ! -f ".env" ]; then
+  META=$(curl -s -X POST \
+    "$BUBBLES" \
+    -H 'Content-Type: application/json;charset=UTF-8' \
+    -d "{\"baseDomain\": \"$ASI_DOMAIN\"}")
+
+  if [ -z "$AWS_PROFILE" ]; then
+    export AWS_PROFILE=default
+  fi
+
+  if [ -z "$AWS_REGION" ]; then
+    export AWS_REGION=us-east-1
+  fi
+
+  BASE_DOMAIN=$(echo "$META" | jq -r .domain)
+
+  cat <<EOF > .env
+#!/bin/bash
+export CLUSTER_NAME=$DEFAULT_CLUSTER_NAME
+export AWS_PROFILE=$AWS_PROFILE
+export AWS_REGION=$AWS_REGION
+export STATE_BUCKET=agilestacks.$BASE_DOMAIN
+export STATE_REGION=$AWS_REGION
+
+export BASE_DOMAIN=$BASE_DOMAIN
+export BASE_DOMAIN_KEY=$(echo "$META" | jq -r .key)
+EOF
+  echo
+  echo "New AWS Cloud container for clusters initialized with DNS $BASE_DOMAIN"
+fi
+
+echo
+echo "Parameter file .env: "
+echo
+cat .env
+echo

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+echo "  ____                        _           _      _       ";
+echo " / ___| _   _ _ __   ___ _ __| |__  _   _| |__  (_) ___  ";
+echo " \___ \| | | | '_ \ / _ \ '__| '_ \| | | | '_ \ | |/ _ \ ";
+echo "  ___) | |_| | |_) |  __/ |  | | | | |_| | |_) || | (_) |";
+echo " |____/ \__,_| .__/ \___|_|  |_| |_|\__,_|_.__(_)_|\___/ ";
+echo "             |_|                                         ";
+
+if [[ ! -f .env ]]; then
+  echo -e "\nConfiguration has not been found. Run 'hub configure'"
+  exit 1
+fi
+# shellcheck disable=SC1091
+source .env
+
+echo -e "\n------------------------------------------------------------------------"
+echo -e "\nUndeploying cluster with FQDN: $CLUSTER_NAME.$BASE_DOMAIN"
+echo -e "\n------------------------------------------------------------------------"
+
+hub ext cloud
+make undeploy

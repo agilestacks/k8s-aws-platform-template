@@ -1,0 +1,55 @@
+#!/bin/bash
+
+BUBBLES="https://api.app.vou7.dev.superhub.io/dns"
+terraform="terraform-v0.12"
+
+if [[ ! -f .env ]]; then
+  echo -e "\nConfiguration has not been found. Run 'hub configure'"
+  exit 1
+fi
+# shellcheck disable=SC1091
+source .env
+
+echo -e "\nRunning some Terraform to create/refresh:"
+echo -e "* Base DNS Zone for your k8s clusters: $BASE_DOMAIN"
+echo -e "* S3 bucket where Terraform and Automation HUB will store their states: agilestacks.$BASE_DOMAIN"
+echo -e "* Amazon EC2 Key Pair to provision k8s cluster nodes. Public key from $TF_VAR_pub_key_path"
+echo -e "\n------------------------------------------------------------------------"
+export TF_VAR_pub_key_path
+export TF_VAR_region="$AWS_REGION"
+export TF_VAR_domain_name="$BASE_DOMAIN"
+export TF_LOG=
+
+if [ -f "$HOME/.ssh/id_rsa.pub" ]; then
+  echo -e "\nUsing public key from $HOME/.ssh/id_rsa.pub"
+  TF_VAR_pub_key_path="$HOME/.ssh/id_rsa.pub"
+else
+  echo -e "\nCreating new SSH key pair"
+  ssh-keygen -t rsa -f "id_rsa" -q -P ""
+  TF_VAR_pub_key_path="$(pwd)/id_rsa.pub"
+fi
+echo -e "\n------------------------------------------------------------------------"
+
+TF_STATE="-state=.terraform/$BASE_DOMAIN.tfstate"
+TF_PLAN=".terraform/$BASE_DOMAIN.tfplan"
+
+(cd "$(pwd)"/.hub/cloud && $terraform init -no-color -input=false)
+(cd "$(pwd)"/.hub/cloud && $terraform plan "$TF_STATE" -input=false -no-color -out "$TF_PLAN")
+(cd "$(pwd)"/.hub/cloud && $terraform apply "$TF_STATE" -input=false -no-color "$TF_PLAN")
+NS=$(cd "$(pwd)"/.hub/cloud && $terraform output "$TF_STATE" -no-color -json name_servers)
+
+echo -e "\n------------------------------------------------------------------------"
+echo -e "\nDelegating (or updating delegation) $BASE_DOMAIN domain management to \nyour hosted zone..."
+CODE=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
+      "$BUBBLES"/"$BASE_DOMAIN" \
+      -H 'Content-Type: application/json;charset=UTF-8' \
+      -d "{\"key\": \"$BASE_DOMAIN_KEY\",\"nameservers\": $NS}")
+
+if [[ $CODE = 202 ]]; then
+
+  echo "Successful"
+else
+  echo "Something went wrong. Please retry!"
+  exit 1
+fi
+echo -e "\n------------------------------------------------------------------------\n"
